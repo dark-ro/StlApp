@@ -19,6 +19,7 @@ class _ClientListState extends State<ClientList> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        iconTheme: IconThemeData(color: Colors.black),
         backgroundColor:
             Theme.of(context).scaffoldBackgroundColor.withOpacity(0),
         elevation: 0,

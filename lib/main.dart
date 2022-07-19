@@ -1,15 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:styliste/Screens/Details.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:styliste/Screens/Home.dart';
 import 'package:styliste/Screens/List.dart';
 import 'package:styliste/Screens/Save.dart';
 import 'package:styliste/Screens/accueil.dart';
+import 'package:styliste/Services/Services.dart';
 
-void main() {
-  runApp(const MyApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+  UserService _userService = UserService();
+  //const MyApp({Key? key}) : super(key: key);
+
   // final bool value = true;
 
   // This widget is the root of your application.
@@ -17,7 +24,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Accueil(),
+      home: StreamBuilder(
+        stream: _userService.user,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.active) {
+            if (snapshot.hasData) {
+              return Accueil();
+            }
+          }
+          return Home();
+        },
+      ),
     );
   }
 }

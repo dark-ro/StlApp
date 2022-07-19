@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "536282167733",
+    "project_id": "stylisme-b0ceb",
+    "storage_bucket": "stylisme-b0ceb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:536282167733:android:c4c013c21b7758c31941fc",
+        "android_client_info": {
+          "package_name": "com.RomDev.styliste"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "536282167733-vua2e73shnh4g8b37o30eg4q2l7aqvr1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.RomDev.styliste",
+            "certificate_hash": "7b426c84f087238082492d1053b42830c51aade8"
+          }
+        },
+        {
+          "client_id": "536282167733-a6r1f3g8d1900d8ot8luito17ra19biq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHifbmCqYJAHkL8DE4VEy18TKhmf1t1cY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "536282167733-a6r1f3g8d1900d8ot8luito17ra19biq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

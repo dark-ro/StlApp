@@ -1,8 +1,10 @@
 // ignore_for_file: file_names
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:styliste/Screens/List.dart';
 import 'package:styliste/Screens/accueil.dart';
+import 'package:styliste/Users/Person.dart';
 
 class Save extends StatefulWidget {
   bool Onpage;
@@ -15,25 +17,21 @@ class Save extends StatefulWidget {
 class _SaveState extends State<Save> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool value = true;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        backgroundColor:
+            Theme.of(context).scaffoldBackgroundColor.withOpacity(0),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.black,
-          ),
-          onPressed: () {},
-        ),
+        iconTheme: IconThemeData(color: Colors.black),
       ),
       body: SingleChildScrollView(
         child: Form(
           key: _formKey,
-          child: const SaveInput(),
+          child: SaveInput(),
         ),
       ),
       bottomNavigationBar:
@@ -80,7 +78,28 @@ class _SaveState extends State<Save> {
 }
 
 class SaveInput extends StatelessWidget {
-  const SaveInput({Key? key}) : super(key: key);
+  SaveInput({Key? key}) : super(key: key);
+
+  final _person = Person(Nom: '');
+
+  // final String Nom = '';
+  // String Taille = '';
+  // String Longueur = '';
+  // String Poitrine = '';
+  // String Jambe = '';
+  // String Bras = '';
+  // String Cuisse = '';
+  // String Dos = '';
+  // final person = <String, dynamic>{
+  //   "Nom": Nom,
+  //   'taille': Taille,
+  // };
+  Future Send() async {
+    final firestore = FirebaseFirestore.instance;
+    firestore.collection('users').add(_person.toJson()).then(
+        (DocumentReference doc) =>
+            print('Personne ajoutée avec ID : ${doc.id}'));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +111,9 @@ class SaveInput extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           TextFormField(
+            onChanged: (value) {
+              _person.Nom = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Nom',
@@ -102,6 +124,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Taille = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Taille',
@@ -112,6 +137,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Longueur = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Longueur',
@@ -122,6 +150,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Poitrine = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Poitrine',
@@ -132,6 +163,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Jambe = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Jambe',
@@ -142,6 +176,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Bras = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Bras',
@@ -152,6 +189,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Cuisse = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Cuisse',
@@ -162,6 +202,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           TextFormField(
+            onChanged: (value) {
+              _person.Dos = value;
+            },
             decoration: const InputDecoration(
               border: OutlineInputBorder(),
               labelText: 'Dos',
@@ -172,7 +215,9 @@ class SaveInput extends StatelessWidget {
             height: 20,
           ),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () {
+              Send();
+            },
             style: ElevatedButton.styleFrom(
                 //elevation: 0,
                 primary: Colors.amber,
