@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 import 'dart:core';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:delayed_display/delayed_display.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -16,9 +17,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 
 class Accueil extends StatefulWidget {
-  Accueil({
-    Key? key,
-  }) : super(key: key);
+  bool Onpage;
+  Accueil({Key? key, required this.Onpage}) : super(key: key);
 
   @override
   State<Accueil> createState() => _AccueilState();
@@ -26,9 +26,11 @@ class Accueil extends StatefulWidget {
 
 class _AccueilState extends State<Accueil> {
   UserService _userService = UserService();
-  Upload _upload = Upload();
+  //Upload _upload = Upload();
   bool value = true;
   String filepath = '';
+  bool Onpage = true;
+  bool OnAccueil = true;
 
   Future selectFile() async {
     ImagePicker picker = ImagePicker();
@@ -94,8 +96,8 @@ class _AccueilState extends State<Accueil> {
               Navigator.push(
                   context, MaterialPageRoute(builder: ((context) => Home())));
             }),
-            icon: FaIcon(FontAwesomeIcons.powerOff)),
-        iconTheme: IconThemeData(color: Colors.black),
+            icon: const FaIcon(FontAwesomeIcons.powerOff)),
+        iconTheme: const IconThemeData(color: Colors.black),
         backgroundColor:
             Theme.of(context).scaffoldBackgroundColor.withOpacity(0),
         actions: const [
@@ -108,9 +110,13 @@ class _AccueilState extends State<Accueil> {
         elevation: 0,
       ),
       body: SingleChildScrollView(
+          child: DelayedDisplay(
+        // slidingBeginOffset: const Offset(0.0, 0.85),
+        delay: const Duration(seconds: 1),
+        slidingCurve: Curves.decelerate,
         child: Column(
           children: [
-            Text(
+            const Text(
               'Nouveautés',
               style: TextStyle(fontSize: 30),
             ),
@@ -118,29 +124,38 @@ class _AccueilState extends State<Accueil> {
                 onPressed: () {
                   selectFile();
                 },
-                icon: Icon(Icons.add_a_photo)),
+                icon: const Icon(Icons.add_a_photo)),
             IconButton(
                 onPressed: () {
                   importFile();
                 },
-                icon: Icon(Icons.download)),
+                icon: const Icon(Icons.download)),
             News(),
-            Text(
+            const Text(
               'Dernier ajout',
               style: TextStyle(fontSize: 30),
             ),
             PersonAdd(),
           ],
         ),
-      ),
+      )),
       bottomNavigationBar:
           BottomNavigationBar(backgroundColor: Colors.amber, items: [
         BottomNavigationBarItem(
             icon: IconButton(
-                onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: ((context) => Accueil())));
-                },
+                onPressed: !OnAccueil
+                    ? () {
+                        setState(() {
+                          Onpage = !Onpage;
+                        });
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: ((context) => Accueil(
+                                      Onpage: Onpage,
+                                    ))));
+                      }
+                    : () => print('object'),
                 icon: Icon(Icons.home,
                     color: value ? Colors.white : Colors.black)),
             label: ''),
@@ -195,75 +210,83 @@ class _PersonAddState extends State<PersonAdd> {
         if (snapshot.hasData) {
           print('Yes data is actually here');
           return Column(
-            children: snapshot.data!.docs.map(
-              (DocumentSnapshot e) {
-                Map<String, dynamic> data = e.data()! as Map<String, dynamic>;
-                Nom = data['Nom'];
-                return Container(
-                  margin: const EdgeInsets.fromLTRB(15, 20, 15, 20),
-                  height: 130,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: const [
-                      BoxShadow(
-                          color: Colors.black38,
-                          spreadRadius: 1,
-                          blurRadius: 15),
-                    ],
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        // TextButton(onPressed: getName, child: Text('Dernier Ajout')),
-                        Text(
-                          data['Nom'],
-                          style: TextStyle(color: Colors.black, fontSize: 30),
-                        ),
-                        Row(
+            children: snapshot.data!.docs
+                .map(
+                  (DocumentSnapshot e) {
+                    Map<String, dynamic> data =
+                        e.data()! as Map<String, dynamic>;
+                    Nom = data['Nom'];
+                    return Container(
+                      margin: const EdgeInsets.fromLTRB(15, 20, 15, 20),
+                      height: 130,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(20),
+                        boxShadow: const [
+                          BoxShadow(
+                              color: Colors.black38,
+                              spreadRadius: 1,
+                              blurRadius: 15),
+                        ],
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            Icon(
-                              Icons.person,
-                              size: 100,
+                            // TextButton(onPressed: getName, child: Text('Dernier Ajout')),
+                            Text(
+                              data['Nom'],
+                              style: const TextStyle(
+                                  color: Colors.black, fontSize: 30),
                             ),
-                            IconButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                          builder: ((context) => Details(
-                                                data: {
-                                                  'Nom': data['Nom'],
-                                                  'Taille': data['Taille'],
-                                                  'Longueur': data['Longueur'],
-                                                  'Poitrine': data['Poitrine'],
-                                                  'Jambe': data['Jambe'],
-                                                  'Bras': data['Bras'],
-                                                  'Cuisse': data['Cuisse'],
-                                                  'Dos': data['Dos']
-                                                },
-                                              ))));
-                                },
-                                icon: Icon(Icons.arrow_forward_ios))
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.person,
+                                  size: 100,
+                                ),
+                                IconButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                              builder: ((context) => Details(
+                                                    document: e,
+                                                    data: {
+                                                      'Nom': data['Nom'],
+                                                      'Taille': data['Taille'],
+                                                      'Longueur':
+                                                          data['Longueur'],
+                                                      'Poitrine':
+                                                          data['Poitrine'],
+                                                      'Jambe': data['Jambe'],
+                                                      'Bras': data['Bras'],
+                                                      'Cuisse': data['Cuisse'],
+                                                      'Dos': data['Dos']
+                                                    },
+                                                  ))));
+                                    },
+                                    icon: Icon(Icons.arrow_forward_ios))
+                              ],
+                            ),
+                            // ignore: avoid_print
                           ],
                         ),
-                        // ignore: avoid_print
-                      ],
-                    ),
-                  ),
-                );
+                      ),
+                    );
 
-                //  Container(
-                //             margin: const EdgeInsets.symmetric(vertical: 10),
-                //             height: 300,
-                //             width: MediaQuery.of(context).size.width,
-                //             color: Colors.amber,
-                //             child: Text(e.toString()),
-                //           );
-              },
-            ).toList(),
+                    //  Container(
+                    //             margin: const EdgeInsets.symmetric(vertical: 10),
+                    //             height: 300,
+                    //             width: MediaQuery.of(context).size.width,
+                    //             color: Colors.amber,
+                    //             child: Text(e.toString()),
+                    //           );
+                  },
+                )
+                .toList()
+                .cast(),
           );
         }
         if (snapshot.hasError) {
@@ -271,9 +294,7 @@ class _PersonAddState extends State<PersonAdd> {
           print(snapshot.error);
         }
 
-        return Container(
-          child: Text('data'),
-        );
+        return const Text('data');
         // Container(
         //     margin: const EdgeInsets.fromLTRB(15, 20, 15, 20),
         //     height: 130,
@@ -413,15 +434,52 @@ class News extends StatelessWidget {
       child: ListView(
           //scrollDirection: Axis.horizontal,
           children: _nouveautes.map((e) {
-        return Container(
-          margin: const EdgeInsets.symmetric(vertical: 10),
-          height: 300,
-          decoration: BoxDecoration(
-            image: DecorationImage(
-                image: AssetImage(e['image']), fit: BoxFit.cover),
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => imagePage(
+                          image: e['image'],
+                        )));
+          },
+          child: Container(
+            margin: const EdgeInsets.symmetric(vertical: 10),
+            height: 300,
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage(e['image']), fit: BoxFit.cover),
+            ),
           ),
         );
       }).toList()),
     );
+  }
+}
+
+class imagePage extends StatelessWidget {
+  String image;
+  imagePage({Key? key, required this.image}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        body: Column(
+      children: [
+        Container(
+          height: MediaQuery.of(context).size.height - 200,
+          decoration: BoxDecoration(
+              boxShadow: const [
+                BoxShadow(
+                    color: Colors.black38, spreadRadius: 1, blurRadius: 15),
+              ],
+              borderRadius: const BorderRadius.only(
+                  bottomLeft: Radius.circular(40),
+                  bottomRight: Radius.circular(40)),
+              image:
+                  DecorationImage(image: AssetImage(image), fit: BoxFit.cover)),
+        ),
+      ],
+    ));
   }
 }

@@ -15,6 +15,7 @@ void main() async {
 
 class MyApp extends StatelessWidget {
   UserService _userService = UserService();
+  bool Onpage = true;
   //const MyApp({Key? key}) : super(key: key);
 
   // final bool value = true;
@@ -29,7 +30,9 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.active) {
             if (snapshot.hasData) {
-              return Accueil();
+              return Accueil(
+                Onpage: Onpage,
+              );
             }
           }
           return Home();

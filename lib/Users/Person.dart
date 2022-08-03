@@ -1,7 +1,7 @@
 // ignore_for_file: non_constant_identifier_names
 
 class Person {
-  String Nom;
+  String? Nom;
   String? Taille;
   String? Longueur;
   String? Poitrine;
@@ -9,6 +9,7 @@ class Person {
   String? Bras;
   String? Cuisse;
   String? Dos;
+  bool like = false;
 
   Person(
       {required this.Nom,
@@ -18,6 +19,7 @@ class Person {
       this.Jambe,
       this.Bras,
       this.Cuisse,
+      required this.like,
       this.Dos});
 
   Map<String, dynamic> toJson() => {
@@ -28,6 +30,7 @@ class Person {
         'Jambe': Jambe,
         'Bras': Bras,
         'Cuisse': Cuisse,
-        'Dos': Cuisse
+        'Dos': Cuisse,
+        'Like': like
       };
 }

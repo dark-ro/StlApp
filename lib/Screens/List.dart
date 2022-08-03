@@ -1,4 +1,9 @@
 // ignore_for_file: file_names
+
+import 'dart:math';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firestore_search/firestore_search.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:styliste/Screens/Save.dart';
@@ -14,7 +19,10 @@ class ClientList extends StatefulWidget {
 
 class _ClientListState extends State<ClientList> {
   bool value = true;
+  bool tout = false;
+  bool Onlist = true;
   String _recherche = '';
+  String afficher = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +46,7 @@ class _ClientListState extends State<ClientList> {
               width: MediaQuery.of(context).size.width,
               padding: const EdgeInsets.symmetric(horizontal: 30),
               child: TextField(
-                onChanged: (value) => _recherche = value,
+                onChanged: (value) => {_recherche = value},
                 decoration: InputDecoration(
                     icon: IconButton(
                       icon: const Icon(Icons.search),
@@ -53,6 +61,7 @@ class _ClientListState extends State<ClientList> {
                         borderRadius: BorderRadius.circular(20))),
               ),
             ),
+            // FirestoreSearchResults.builder(tag: 'tag', firestoreCollectionName: 'users', searchBy: 'Nom', dataListFromSnapshot: document as List,),
             // IconButton(onPressed: () {}, icon: Icon(Icons.search))
 
             //IconButton(onPressed: () {}, icon: Icon(Icons.sort_by_alpha)),
@@ -62,20 +71,30 @@ class _ClientListState extends State<ClientList> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   TextButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        setState(() {
+                          tout = true;
+                        });
+                      },
                       child: const Text(
                         'Tout',
                         style: TextStyle(color: Colors.black),
                       )),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      setState(() {
+                        tout = false;
+                      });
+                    },
                     child: const Text('Favoris',
                         style: TextStyle(color: Colors.black)),
                   )
                 ],
               ),
             ),
-            const ListSection()
+            Personlist(
+              Tout: tout,
+            ),
           ],
         ),
       ),
@@ -84,8 +103,12 @@ class _ClientListState extends State<ClientList> {
         BottomNavigationBarItem(
             icon: IconButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: ((context) => Accueil())));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => Accueil(
+                                Onpage: value,
+                              ))));
                 },
                 icon: Icon(Icons.home,
                     color: value ? Colors.black : Colors.white)),
@@ -104,14 +127,16 @@ class _ClientListState extends State<ClientList> {
             label: ''),
         BottomNavigationBarItem(
             icon: IconButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => ClientList(
-                              Onpage: value,
-                            ))));
-              },
+              onPressed: !Onlist
+                  ? () {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: ((context) => ClientList(
+                                    Onpage: value,
+                                  ))));
+                    }
+                  : () => print('object'),
               icon:
                   Icon(Icons.list, color: value ? Colors.white : Colors.black),
             ),
@@ -121,8 +146,10 @@ class _ClientListState extends State<ClientList> {
   }
 }
 
-class ListSection extends StatelessWidget {
-  const ListSection({Key? key}) : super(key: key);
+class Personlist extends StatefulWidget {
+  bool Tout;
+  Personlist({Key? key, required this.Tout}) : super(key: key);
+
   // ignore: non_constant_identifier_names
   final List PersonList = const [
     {'name': 'Adèle', 'like': false},
@@ -136,48 +163,132 @@ class ListSection extends StatelessWidget {
   ];
 
   @override
+  State<Personlist> createState() => _PersonlistState();
+}
+
+class _PersonlistState extends State<Personlist> {
+  Stream<QuerySnapshot> listen =
+      FirebaseFirestore.instance.collection('users').snapshots();
+  String Like = "Like";
+  bool etat = true;
+  @override
   Widget build(BuildContext context) {
-    // ignore: sized_box_for_whitespace
-    return Container(
-      height: 430,
-      //margin: EdgeInsets.only(bottom: 100),
-      //color: Colors.blueGrey,
-      //padding: EdgeInsets.only(top: 20),
-      child: ListView(
-          shrinkWrap: true,
-          scrollDirection: Axis.vertical,
-          children: PersonList.map((e) {
-            return Container(
-              height: 80,
-              decoration: const BoxDecoration(
-                //color: Colors.amber,
-                border: Border.symmetric(
-                    horizontal: BorderSide(
-                        width: 0.5,
-                        style: BorderStyle.solid,
-                        color: Colors.grey)),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    e['name'],
-                    style: const TextStyle(fontSize: 25),
-                  ),
-                  IconButton(
-                    onPressed: () {},
-                    icon: FaIcon(FontAwesomeIcons.solidHeart,
-                        color: e['like'] ? Colors.amber : Colors.black12),
-                  ),
-                  // IconButton(
-                  //     onPressed: () {},
-                  //     icon: Icon(
-                  //       Icons.navigate_next,
-                  //     )),
-                ],
-              ),
-            );
-          }).toList()),
+    return StreamBuilder(
+      stream: listen,
+      builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+        if (snapshot.hasData) {
+          return widget.Tout
+              ? Container(
+                  height: 430,
+                  //margin: EdgeInsets.only(bottom: 100),
+                  //color: Colors.blueGrey,
+                  //padding: EdgeInsets.only(top: 20),
+                  child: ListView(
+                      shrinkWrap: true,
+                      scrollDirection: Axis.vertical,
+                      children: snapshot.data!.docs.map((e) {
+                        Map<String, dynamic> data =
+                            e.data() as Map<String, dynamic>;
+                        return Container(
+                          height: 80,
+                          decoration: const BoxDecoration(
+                            //color: Colors.amber,
+                            border: Border.symmetric(
+                                horizontal: BorderSide(
+                                    width: 0.5,
+                                    style: BorderStyle.solid,
+                                    color: Colors.grey)),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                data['Nom'],
+                                style: const TextStyle(fontSize: 25),
+                              ),
+                              IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    etat = !etat;
+                                    FirebaseFirestore.instance
+                                        .collection('users')
+                                        .doc(e.id)
+                                        .update({"Like": etat}).then((value) =>
+                                            print("Update sucessfuly"));
+                                  });
+                                },
+                                icon: FaIcon(FontAwesomeIcons.solidHeart,
+                                    color: data['Like']
+                                        ? Colors.amber
+                                        : Colors.black12),
+                              ),
+                              // IconButton(
+                              //     onPressed: () {},
+                              //     icon: Icon(
+                              //       Icons.navigate_next,
+                              //     )),
+                            ],
+                          ),
+                        );
+                      }).toList()),
+                )
+              : ListView(
+                  shrinkWrap: true,
+                  scrollDirection: Axis.vertical,
+                  children: snapshot.data!.docs.map((e) {
+                    Map<String, dynamic> data =
+                        e.data() as Map<String, dynamic>;
+                    if (data['Like'] == true) {
+                      return Container(
+                        height: 80,
+                        decoration: const BoxDecoration(
+                          //color: Colors.amber,
+                          border: Border.symmetric(
+                              horizontal: BorderSide(
+                                  width: 0.5,
+                                  style: BorderStyle.solid,
+                                  color: Colors.grey)),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              data['Nom'],
+                              style: const TextStyle(fontSize: 25),
+                            ),
+                            IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  etat = !etat;
+                                  FirebaseFirestore.instance
+                                      .collection('users')
+                                      .doc(e.id)
+                                      .update({"Like": etat}).then((value) =>
+                                          print("Update sucessfuly"));
+                                });
+                              },
+                              icon: FaIcon(FontAwesomeIcons.solidHeart,
+                                  color: data['Like']
+                                      ? Colors.amber
+                                      : Colors.black12),
+                            ),
+                            // IconButton(
+                            //     onPressed: () {},
+                            //     icon: Icon(
+                            //       Icons.navigate_next,
+                            //     )),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return Container();
+                    }
+                  }).toList(),
+                );
+//   }
+        }
+        return const CircularProgressIndicator();
+      },
     );
   }
 }

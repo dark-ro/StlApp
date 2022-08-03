@@ -1,18 +1,24 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:styliste/Screens/Save.dart';
+import 'package:styliste/Users/Person.dart';
 
 class Details extends StatefulWidget {
   Map<String, dynamic> data;
-  Details({Key? key, required this.data}) : super(key: key);
+  DocumentSnapshot document;
+  Details({Key? key, required this.data, required this.document})
+      : super(key: key);
 
   @override
   State<Details> createState() => _DetailsState();
 }
 
 class _DetailsState extends State<Details> {
+  final _person = Person(Nom: '', like: false);
   String dropdownvalue = 'Taille';
+  String Modify = '';
   List mesureSelected = [
     'Taille',
     'Hauteur',
@@ -273,25 +279,30 @@ class _DetailsState extends State<Details> {
                         context: context,
                         builder: (BuildContext context) {
                           return Container(
-                              height: 400,
-                              decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        spreadRadius: 1,
-                                        blurRadius: 5,
-                                        color: Colors.black)
-                                  ],
-                                  borderRadius: BorderRadius.only(
-                                      topLeft: Radius.circular(20),
-                                      topRight: Radius.circular(20))),
-                              child: SingleChildScrollView(
-                                child: Form(
-                                    child: Padding(
+                            height: 400,
+                            decoration: const BoxDecoration(
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                      spreadRadius: 1,
+                                      blurRadius: 5,
+                                      color: Colors.black)
+                                ],
+                                borderRadius: BorderRadius.only(
+                                    topLeft: Radius.circular(20),
+                                    topRight: Radius.circular(20))),
+                            child: SingleChildScrollView(
+                              child: Form(
+                                child: Padding(
                                   padding: const EdgeInsets.all(20),
                                   child: Column(
                                     children: [
                                       TextFormField(
+                                        onChanged: ((value) {
+                                          setState(() {
+                                            Modify = value;
+                                          });
+                                        }),
                                         decoration: const InputDecoration(
                                             border: OutlineInputBorder()),
                                       ),
@@ -299,7 +310,17 @@ class _DetailsState extends State<Details> {
                                         margin: const EdgeInsets.only(
                                             top: 30, bottom: 40),
                                         child: ElevatedButton(
-                                          onPressed: () {},
+                                          onPressed: () {
+                                            setState(() {
+                                              FirebaseFirestore.instance
+                                                  .collection('users')
+                                                  .doc(widget.document.id)
+                                                  .update({
+                                                dropdownvalue: Modify
+                                              }).then((value) => print(
+                                                      "Update sucessfuly"));
+                                            });
+                                          },
                                           style: ElevatedButton.styleFrom(
                                               primary: Colors.amber,
                                               padding:
@@ -311,6 +332,7 @@ class _DetailsState extends State<Details> {
                                       DropdownButton<String>(
                                         value: dropdownvalue,
                                         icon: const Icon(Icons.arrow_downward),
+                                        // ignore: non_constant_identifier_names
                                         onChanged: (String? NewValue) {
                                           setState(() {
                                             dropdownvalue = NewValue!;
@@ -335,8 +357,10 @@ class _DetailsState extends State<Details> {
                                       )
                                     ],
                                   ),
-                                )),
-                              ));
+                                ),
+                              ),
+                            ),
+                          );
                         });
                   },
                   style: ElevatedButton.styleFrom(

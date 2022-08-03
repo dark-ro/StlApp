@@ -17,6 +17,7 @@ class Save extends StatefulWidget {
 class _SaveState extends State<Save> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   bool value = true;
+  bool OnSave = true;
 
   @override
   Widget build(BuildContext context) {
@@ -39,21 +40,27 @@ class _SaveState extends State<Save> {
         BottomNavigationBarItem(
             icon: IconButton(
                 onPressed: () {
-                  Navigator.push(context,
-                      MaterialPageRoute(builder: ((context) => Accueil())));
+                  Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: ((context) => Accueil(
+                                Onpage: value,
+                              ))));
                 },
                 icon: Icon(Icons.home,
                     color: value ? Colors.black : Colors.white)),
             label: ''),
         BottomNavigationBarItem(
             icon: IconButton(
-              onPressed: () {
-                print('$value');
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: ((context) => Save(Onpage: value))));
-              },
+              onPressed: !OnSave
+                  ? () {
+                      print('$value');
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: ((context) => Save(Onpage: value))));
+                    }
+                  : () => print('Vous êtes déjà sur cette page'),
               icon: Icon(Icons.person_add_alt_1,
                   color: value ? Colors.white : Colors.black),
             ),
@@ -80,7 +87,7 @@ class _SaveState extends State<Save> {
 class SaveInput extends StatelessWidget {
   SaveInput({Key? key}) : super(key: key);
 
-  final _person = Person(Nom: '');
+  final _person = Person(Nom: '', like: false);
 
   // final String Nom = '';
   // String Taille = '';
@@ -95,6 +102,7 @@ class SaveInput extends StatelessWidget {
   //   'taille': Taille,
   // };
   Future Send() async {
+    _person.like = false;
     final firestore = FirebaseFirestore.instance;
     firestore.collection('users').add(_person.toJson()).then(
         (DocumentReference doc) =>
@@ -216,7 +224,46 @@ class SaveInput extends StatelessWidget {
           ),
           ElevatedButton(
             onPressed: () {
-              Send();
+              if (_person.Nom != null &&
+                  _person.Bras != null &&
+                  _person.Cuisse != null &&
+                  _person.Dos != null &&
+                  _person.Jambe != null &&
+                  _person.Longueur != null &&
+                  _person.Poitrine != null &&
+                  _person.Taille != null) {
+                Send().whenComplete(() => showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return Container(
+                        child: AlertDialog(
+                            title: Text('Sauvegarder avec succes'),
+                            actions: [
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text('OK'))
+                            ],
+                            backgroundColor: Colors.amber),
+                      );
+                    }));
+              } else {
+                showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        actions: [
+                          TextButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              child: Text('OK'))
+                        ],
+                        title: Text('Veuillez remplir les champs vides'),
+                      );
+                    });
+              }
             },
             style: ElevatedButton.styleFrom(
                 //elevation: 0,

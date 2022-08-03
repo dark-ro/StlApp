@@ -18,6 +18,7 @@ class _HomeState extends State<Home> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final UserService _userService = UserService();
   final StylisteUser _stylisteUser = StylisteUser();
+  bool isSecret = false;
 
   final _formKey = GlobalKey<FormState>();
   //RegExp emailRegex = RegExp(r"[^a-z0-9\._-]\+[a-z]+");
@@ -83,18 +84,28 @@ class _HomeState extends State<Home> {
                     //   height: 40,
                     // ),
                     TextFormField(
+                      obscureText: isSecret,
                       cursorColor: Colors.black,
                       onChanged: (value) {
                         setState(() {
                           _password = value;
                         });
                       },
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        enabledBorder: OutlineInputBorder(
+                      decoration: InputDecoration(
+                        suffixIcon: InkWell(
+                          onTap: () => setState(() {
+                            isSecret = !isSecret;
+                          }),
+                          child: Icon(
+                            !isSecret ? Icons.visibility_off : Icons.visibility,
+                            color: Colors.black,
+                          ),
+                        ),
+                        border: const OutlineInputBorder(),
+                        enabledBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.transparent),
                         ),
-                        focusedBorder: OutlineInputBorder(
+                        focusedBorder: const OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.transparent),
                         ),
                         hintText: 'Entrer un mot de passe',
